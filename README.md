@@ -16,6 +16,7 @@ Melody Masters Instrument Shop is a web-based e-commerce application designed to
 ## 🛒 Key Features
 - Product browsing without authentication
 - Secure user registration and login
+- Can reset password
 - Shopping cart and checkout system
 - Free shipping for orders over £100
 - Digital sheet music downloads after purchase
