@@ -1,10 +1,9 @@
 <?php
-// Token එකක් සාදා Database එකට ඇතුළත් කිරීමේ Logic එක
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
-    $token = bin2hex(random_bytes(16)); // අහඹු අකුරු වැලක්
+    $token = bin2hex(random_bytes(16)); 
     $token_hash = hash("sha256", $token);
-    $expiry = date("Y-m-d H:i:s", time() + 60 * 30); // විනාඩි 30ක් වලංගුයි
+    $expiry = date("Y-m-d H:i:s", time() + 60 * 30); 
 
     include 'db_connect.php';
     $sql = "UPDATE users SET reset_token_hash = ?, reset_token_expires_at = ? WHERE email = ?";
@@ -13,9 +12,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->execute();
 
     if ($stmt->affected_rows > 0) {
-        $reset_link = "localhost/melody/reset-password.php?token=$token";
+        $reset_link = "localhost/F20021111004/reset-password.php?token=$token";
         $success_msg = "Please check your email. Reset link has been sent.";
-        // සටහන: ඇත්තටම වැඩ කරන විට මෙහිදී echo කරනවා වෙනුවට email එකක් යැවිය යුතුය.
     } else {
         $error_msg = "No account found with that email address.";
     }

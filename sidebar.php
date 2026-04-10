@@ -24,6 +24,6 @@
     <?php endif; ?>
 
     <a href="logout.php" style="color: #e74c3c; margin-top: 20px;">
-        <i class="fa fa-sign-out-alt"></i> Logout
+        <i class="fa fa-sign-out-alt" ></i> Logout
     </a>
 </div>

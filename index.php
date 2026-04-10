@@ -2,7 +2,6 @@
 include 'db_connect.php'; 
 include 'navbar.php'; 
 
-// අලුත්ම භාණ්ඩ 4ක් ලබාගැනීම
 $featured_products = $conn->query("SELECT * FROM products ORDER BY product_id DESC LIMIT 4");
 ?>
 <!DOCTYPE html>
@@ -11,26 +10,53 @@ $featured_products = $conn->query("SELECT * FROM products ORDER BY product_id DE
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Melody Masters - Premier Music Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
     <style>
         :root {
             --primary: #2c3e50;
             --accent: #3498db;
             --light-bg: #f8f9fa;
-            --text-dark: #2d3436;
+            --text-dark: #1a202c;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
             color: var(--text-dark);
             line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Keyframe Animations --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(1.1); }
+            to { transform: scale(1); }
+        }
+
+        /* --- Scroll Reveal Logic --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: var(--transition);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         /* --- Hero Section --- */
         .hero {
-            height: 80vh;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+            height: 90vh;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
                         url('uploads/hero.jpg'); 
             background-size: cover;
             background-position: center;
@@ -40,125 +66,179 @@ $featured_products = $conn->query("SELECT * FROM products ORDER BY product_id DE
             text-align: center;
             color: white;
             padding: 0 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            animation: fadeInUp 1.2s ease-out forwards;
+            z-index: 2;
         }
 
         .hero-content h1 {
-            font-size: 3.5rem;
+            font-size: clamp(2.5rem, 6vw, 4rem);
             margin-bottom: 20px;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: -1px;
         }
 
         .hero-content p {
             font-size: 1.2rem;
-            max-width: 600px;
-            margin: 0 auto 30px;
+            max-width: 650px;
+            margin: 0 auto 35px;
+            opacity: 0.9;
         }
 
-        .cta-btn {
+        .cta-btn-hero {
             background: var(--accent);
             color: white;
-            padding: 15px 35px;
+            padding: 16px 40px;
             text-decoration: none;
-            border-radius: 30px;
-            font-weight: 600;
-            transition: 0.3s;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: var(--transition);
+            display: inline-block;
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
         }
 
-        .cta-btn:hover { background: #2980b9; transform: scale(1.05); }
-
-        /* --- Sections General --- */
-        section { padding: 80px 10%; }
-        .section-title {
-            text-align: center;
-            margin-bottom: 50px;
+        .cta-btn-hero:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: #2980b9;
+            box-shadow: 0 15px 30px rgba(52, 152, 219, 0.4);
         }
-        .section-title h2 { font-size: 2rem; color: var(--primary); }
 
         /* --- Category Highlights --- */
+        section { padding: 100px 8%; }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-title h2 { 
+            font-size: 2.2rem; 
+            font-weight: 800;
+            color: var(--primary); 
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 60px;
+            height: 4px;
+            background: var(--accent);
+            transform: translateX(-50%);
+            border-radius: 10px;
+        }
+
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
         }
 
         .cat-card {
             position: relative;
-            height: 300px;
-            border-radius: 15px;
+            height: 320px;
+            border-radius: 20px;
             overflow: hidden;
-            cursor: pointer;
+            display: block;
+            text-decoration: none;
         }
 
         .cat-card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: 0.5s;
+            transition: transform 0.8s ease;
         }
 
         .cat-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
             display: flex;
             align-items: flex-end;
-            padding: 20px;
+            padding: 30px;
             color: white;
         }
 
+        .cat-overlay h3 { font-size: 1.5rem; margin: 0; font-weight: 700; }
+
         .cat-card:hover img { transform: scale(1.1); }
+        .cat-card:hover .cat-overlay { background: linear-gradient(to top, var(--accent) 0%, transparent 80%); opacity: 0.9; }
 
         /* --- Featured Products --- */
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 30px;
         }
 
         .product-card {
             background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
             text-align: center;
-            transition: 0.3s;
+            transition: var(--transition);
+            border: 1px solid #f1f5f9;
         }
 
-        .product-card:hover { transform: translateY(-10px); }
+        .product-card:hover { 
+            transform: translateY(-12px); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: var(--accent);
+        }
 
         .product-card img {
             width: 100%;
             height: 200px;
             object-fit: contain;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            transition: var(--transition);
         }
 
-        .price { color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .product-card:hover img { transform: scale(1.05); }
+
+        .price { color: var(--primary); font-weight: 800; font-size: 1.3rem; margin: 10px 0; }
+
+        .view-detail-btn {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+        }
 
         /* --- Promo Banner --- */
         .promo-banner {
             position: relative;
-            width: 95%; /* මෙතනින් ඔබට අවශ්‍ය පළල (Percentage) ලබා දෙන්න */
-            max-width: 10000px; /* උපරිම පළල සීමා කිරීමෙන් ලොකු Screen වලදී ලස්සනට පෙනේ */
-            min-height: 350px;
-            background: url('upload/11.jpg') no-repeat center center/cover;
+            width: 85%; 
+            min-height: 400px;
+            background: url('upload/11.jpg') center/cover;
             background-color: #2c3e50;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 20px;
+            border-radius: 30px;
             overflow: hidden;
-            margin: 40px auto; /* auto යෙදීමෙන් banner එක මැදට (Center) පැමිණේ */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin: 60px auto; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
         }
-        /* රූපය මත අඳුරු පටලයක් ඇති කර අකුරු පැහැදිලි කිරීමට */
+
         .promo-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 100%);
             z-index: 1;
         }
 
@@ -167,101 +247,39 @@ $featured_products = $conn->query("SELECT * FROM products ORDER BY product_id DE
             z-index: 2;
             text-align: center;
             color: white;
-            padding: 20px;
+            padding: 40px;
         }
 
         .offer-badge {
-            background: var(--accent);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .promo-content h2 {
-            font-size: 2.5rem;
-            margin: 15px 0;
-            line-height: 1.2;
-        }
-
-        .promo-content h2 span {
-            color: #f1c40f; /* Premium Keyboards යන වර්ණය වෙනස් කිරීමට */
-        }
-
-        .promo-content p {
-            font-size: 1.1rem;
-            margin-bottom: 25px;
-            opacity: 0.9;
-        }
-
-        .cta-btn {
-            display: inline-block;
-            background: white;
+            background: #f1c40f;
             color: #2c3e50;
-            padding: 12px 35px;
+            padding: 6px 18px;
             border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
         }
 
-        .cta-btn:hover {
-            background: var(--accent);
-            color: white;
-            transform: translateY(-3px);
-        }
+        .promo-content h2 { font-size: clamp(1.8rem, 4vw, 3rem); margin: 20px 0; font-weight: 800; }
+        .promo-content span { color: #f1c40f; }
 
-        /* More Card එක සඳහා විශේෂ CSS */
+        /* More Card */
         .more-card {
-            background: var(--sidebar-bg); /* තද පැහැති පසුබිමක් */
+            background: #f1f5f9; 
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            transition: 0.3s;
-            border: 2px solid var(--accent);
+            border: 2px dashed #cbd5e1;
         }
 
-        .more-content {
-            color: white;
-            padding: 20px;
-        }
+        .more-content i { font-size: 3rem; color: var(--accent); margin-bottom: 15px; transition: var(--transition); }
+        .more-card:hover { background: var(--accent); border-style: solid; border-color: var(--accent); }
+        .more-card:hover i, .more-card:hover h3, .more-card:hover p { color: white; }
 
-        .more-content i {
-            font-size: 3rem;
-            color: var(--accent);
-            margin-bottom: 10px;
-        }
-
-        .more-content h3 {
-            margin: 5px 0;
-            font-size: 1.5rem;
-            color: white;
-        }
-
-        .more-content p {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        .more-card:hover {
-            background: var(--accent);
-            transform: translateY(-5px);
-        }
-
-        .more-card:hover i {
-            color: white;
-        }
-
-        /* Mobile වලට ගැලපෙන ලෙස */
         @media (max-width: 768px) {
-            .promo-content h2 { font-size: 1.8rem; }
-            .promo-banner { min-height: 300px; border-radius: 10px; }
+            section { padding: 60px 5%; }
+            .promo-banner { width: 95%; min-height: 350px; }
         }
     </style>
 </head>
@@ -269,108 +287,97 @@ $featured_products = $conn->query("SELECT * FROM products ORDER BY product_id DE
 
     <header class="hero">
         <div class="hero-content">
-            <h1>Unlock Your Musical Journey</h1>
-            <p>Explore high-quality instruments and digital sheet music curated for true musicians.</p>
-            <a href="shop.php" class="cta-btn">Shop Collection</a>
+            <h1>Unlock Your <br>Musical Journey</h1>
+            <p>Experience the symphony of high-quality instruments and professional digital scores designed for the modern artist.</p>
+            <a href="shop.php" class="cta-btn-hero">Shop the Collection <i class="fa-solid fa-arrow-right" style="margin-left:8px;"></i></a>
         </div>
     </header>
 
-    <section>
-    <div class="section-title">
-        <h2>Explore Categories</h2>
-    </div>
-    <div class="category-grid">
-        <a href="shop.php?cat=Guitars" class="cat-card">
-            <img src="upload/gitars.jpg" alt="Guitars">
-            <div class="cat-overlay"><h3>Guitars</h3></div>
-        </a>
-
-        <a href="shop.php?cat=Keyboards" class="cat-card">
-            <img src="upload/keyboard.jpg" alt="Keyboards">
-            <div class="cat-overlay"><h3>Keyboards</h3></div>
-        </a>
-
-        <a href="shop.php?cat=Pianos" class="cat-card">
-            <img src="upload/piano.jpg" alt="Pianos">
-            <div class="cat-overlay"><h3>Pianos</h3></div>
-        </a>
-
-        <a href="shop.php?cat=Drums" class="cat-card">
-            <img src="upload/drum.jpg" alt="Drums">
-            <div class="cat-overlay"><h3>Drums</h3></div>
-        </a>
-
-        <a href="shop.php?cat=SheetMusic" class="cat-card">
-            <img src="upload/sheets.jpg" alt="Sheet Music">
-            <div class="cat-overlay"><h3>Sheet Music</h3></div>
-        </a>
-
-        <a href="shop.php?cat=Violins" class="cat-card">
-            <img src="upload/Violins.jpg" alt="Violins">
-            <div class="cat-overlay"><h3>Violins</h3></div>
-        </a>
-
-        <a href="shop.php?cat=Accessories" class="cat-card">
-            <img src="upload/Accessories.jpg" alt="Accessories">
-            <div class="cat-overlay"><h3>Accessories</h3></div>
-        </a>
-
-            <a href="shop.php" class="cat-card more-card" style="text-decoration: none;">
-            <div class="more-content">
-                <i class="fa fa-arrow-circle-right"></i>
-                <h3>View All</h3>
-                <p>Explore More</p>
-            </div>
-        </a>
+    <section class="reveal">
+        <div class="section-title">
+            <h2>Explore Categories</h2>
+        </div>
+        <div class="category-grid">
+            <a href="shop.php?cat=Guitars" class="cat-card">
+                <img src="upload/gitars.jpg" alt="Guitars">
+                <div class="cat-overlay"><h3>Guitars</h3></div>
+            </a>
+            <a href="shop.php?cat=Pianos" class="cat-card">
+                <img src="upload/piano.jpg" alt="Pianos">
+                <div class="cat-overlay"><h3>Pianos</h3></div>
+            </a>
+            <a href="shop.php?cat=Drums" class="cat-card">
+                <img src="upload/drum.jpg" alt="Drums">
+                <div class="cat-overlay"><h3>Drums</h3></div>
+            </a>
+            <a href="shop.php" class="cat-card more-card">
+                <div class="more-content">
+                    <i class="fa-solid fa-circle-arrow-right"></i>
+                    <h3>View All</h3>
+                    <p>Discover More</p>
+                </div>
+            </a>
         </div>
     </section>
 
-    <div class="promo-banner">
-    <div class="promo-overlay"></div>
-    
-    <div class="promo-content">
-        <span class="offer-badge">Limited Time Offer</span>
-        <h2>Get 20% Off on All <br><span>Premium Keyboards</span></h2>
-        <p>Experience world-class sound with our latest collection.</p>
-        <a href="shop.php" class="cta-btn">View Offers <i class="fas fa-arrow-right"></i></a>
+    <div class="promo-banner reveal">
+        <div class="promo-overlay"></div>
+        <div class="promo-content">
+            <span class="offer-badge">Exclusive Deal</span>
+            <h2>Up to <span>20% Off</span> on All <br>Premium Instruments</h2>
+            <p>Upgrade your sound today with our premium selection.</p>
+            <a href="shop.php" class="cta-btn-hero" style="background: white; color: var(--primary);">Claim Offer</a>
+        </div>
     </div>
-</div>
 
-    <section style="background: var(--light-bg); padding: 50px 20px;">
-        <div class="section-title" style="text-align: center; margin-bottom: 30px;">
-            <h2>Featured Products</h2>
+    <section style="background: var(--light-bg);" class="reveal">
+        <div class="section-title">
+            <h2>Featured Collection</h2>
         </div>
 
-        <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto;">
-            
+        <div class="product-grid">
             <?php if ($featured_products->num_rows > 0): ?>
                 <?php while($row = $featured_products->fetch_assoc()): ?>
-                    <div class="product-card" style="background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                        <img src="uploads/<?php echo $row['product_image']; ?>" alt="<?php echo $row['product_name']; ?>" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
-                        
-                        <h3 style="margin: 15px 0 10px; font-size: 1.2rem;"><?php echo $row['product_name']; ?></h3>
-                        
-                        <p class="price" style="font-weight: bold; color: var(--sidebar-bg); font-size: 1.1rem;">
-                            Rs. <?php echo number_format($row['price'], 2); ?>
-                        </p>
-                        
-                        <a href="product_details.php?id=<?php echo $row['product_id']; ?>" class="nav-link" style="color: var(--accent); text-decoration: none; font-weight: 600;">View Detail</a>
+                    <div class="product-card">
+                        <img src="uploads/<?php echo $row['product_image']; ?>" alt="<?php echo $row['product_name']; ?>">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 5px;"><?php echo $row['product_name']; ?></h3>
+                        <div class="price">Rs. <?php echo number_format($row['price'], 2); ?></div>
+                        <a href="product_details.php?id=<?php echo $row['product_id']; ?>" class="view-detail-btn">
+                            View Product <i class="fa-solid fa-chevron-right"></i>
+                        </a>
                     </div>
                 <?php endwhile; ?>
             <?php else: ?>
-                <p style="text-align: center; grid-column: 1 / -1;">No products found.</p>
+                <p style="text-align: center; grid-column: 1 / -1;">New arrivals coming soon!</p>
             <?php endif; ?>
-
         </div>
 
-        <div style="text-align: center; margin-top: 40px;">
-            <a href="shop.php" style="background: var(--sidebar-bg); color: blue; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; transition: 0.3s; display: inline-block;">
-                See More Products <i class="fa fa-arrow-right" style="margin-left: 8px;"></i>
+        <div style="text-align: center; margin-top: 50px;">
+            <a href="shop.php" style="color: var(--primary); font-weight: 700; text-decoration: none; border-bottom: 2px solid var(--accent); padding-bottom: 5px;">
+                Browse All Products <i class="fa-solid fa-arrow-right-long" style="margin-left: 10px;"></i>
             </a>
         </div>
     </section>
 
     <?php include 'footer.php'; ?>
 
+    <script>
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100; 
+
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+
+        window.addEventListener("scroll", reveal);
+        // Initial check on load
+        window.addEventListener("load", reveal);
+    </script>
 </body>
 </html>

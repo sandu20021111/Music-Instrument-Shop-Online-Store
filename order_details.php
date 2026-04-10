@@ -1,16 +1,13 @@
 <?php
-// Output buffering ආරම්භ කිරීම (Headers already sent error එක වැළැක්වීමට)
 ob_start();
 include 'db_connect.php';
 include 'navbar.php';
 
-// පාරිභෝගිකයා ලොග් වී නැතිනම් පලවා හැරීම
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// URL එකෙන් Order ID එක ලබා ගැනීම
 if (!isset($_GET['id'])) {
     header("Location: my_orders.php");
     exit();
@@ -19,18 +16,21 @@ if (!isset($_GET['id'])) {
 $order_id = mysqli_real_escape_string($conn, $_GET['id']);
 $user_id = $_SESSION['user_id'];
 
-// ඇණවුමේ ප්‍රධාන තොරතුරු ලබා ගැනීම
 $order_query = "SELECT * FROM orders WHERE order_id = '$order_id' AND user_id = '$user_id'";
 $order_result = $conn->query($order_query);
 
 if ($order_result->num_rows == 0) {
-    echo "<div style='text-align:center; padding:50px;'><h3>Invalid Order Request.</h3><a href='my_orders.php'>Go Back</a></div>";
+    echo "<div style='text-align:center; padding:100px; font-family:sans-serif;'>
+            <i class='fa-solid fa-circle-exclamation' style='font-size:3rem; color:#e74c3c;'></i>
+            <h3 style='margin-top:20px;'>Invalid Order Request</h3>
+            <p style='color:#666;'>We couldn't find the invoice you're looking for.</p>
+            <a href='my_orders.php' style='color:#3498db; text-decoration:none; font-weight:bold;'>← Go Back to My Orders</a>
+          </div>";
     exit();
 }
 
 $order = $order_result->fetch_assoc();
 
-// භාණ්ඩ ලැයිස්තුව ලබා ගැනීම
 $items_query = "SELECT * FROM order_items WHERE order_id = '$order_id'";
 $items_result = $conn->query($items_query);
 ?>
@@ -39,85 +39,192 @@ $items_result = $conn->query($items_query);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Order Invoice - #<?php echo $order_id; ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #<?php echo $order_id; ?> | Melody Masters</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
     <style>
         :root {
-            --primary: #2c3e50;
-            --accent: #3498db;
-            --bg-light: #f8f9fa;
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --success: #10b981;
+            --border: #e2e8f0;
+            --bg-light: #f8fafc;
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg-light); color: var(--primary); }
-        .container { max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg-light); 
+            color: var(--primary); 
+            margin: 0;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
         
-        .detail-card {
+        /* --- Navigation Buttons --- */
+        .no-print { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .btn-back { text-decoration: none; color: #64748b; font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
+        .btn-back:hover { color: var(--accent); }
+
+        /* --- Invoice Card --- */
+        .invoice-card {
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            padding: 60px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.04);
+            position: relative;
+            overflow: hidden;
         }
 
-        .status-header {
+        /* Top Accent Bar */
+        .invoice-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 8px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+        }
+
+        .invoice-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 50px;
         }
 
+        .brand h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; margin: 0; color: var(--primary); }
+        .brand p { color: #64748b; margin: 5px 0; font-size: 0.9rem; }
+
+        .order-meta { text-align: right; }
+        .order-meta h2 { font-size: 1.2rem; font-weight: 700; margin: 0; color: var(--accent); }
+        .order-meta p { color: #64748b; font-size: 0.85rem; margin: 4px 0; }
+
+        .status-badge {
+            display: inline-block;
+            background: #ecfdf5;
+            color: var(--success);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        /* --- Billing Info Grid --- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 16px;
+        }
+
+        .info-block h4 { font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-bottom: 10px; }
+        .info-block p { font-size: 0.95rem; line-height: 1.6; margin: 0; font-weight: 500; }
+
+        /* --- Table Styling --- */
         .items-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .items-table th { text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #888; font-size: 0.8rem; text-transform: uppercase; }
-        .items-table td { padding: 15px 12px; border-bottom: 1px solid #f9f9f9; }
+        .items-table th { 
+            text-align: left; 
+            padding: 15px; 
+            border-bottom: 2px solid var(--border); 
+            color: #64748b; 
+            font-size: 0.8rem; 
+            text-transform: uppercase; 
+            font-weight: 700;
+        }
+        .items-table td { padding: 20px 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
+        
+        .product-name { font-weight: 700; color: var(--primary); display: block; }
+        
+        /* --- Summary Section --- */
+        .invoice-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 40px;
+        }
 
-        .summary { margin-top: 20px; text-align: right; line-height: 2; }
-        .total-price { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+        .summary-box { width: 300px; }
+        .summary-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.95rem; }
+        .summary-row.total { 
+            margin-top: 15px; 
+            padding-top: 15px; 
+            border-top: 2px solid var(--border);
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
 
-        .btn-back { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #666; font-size: 0.9rem; }
+        /* --- Buttons --- */
+        .actions { text-align: center; margin-top: 40px; }
+        .btn-print {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+        }
+        .btn-print:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(15, 23, 42, 0.3); }
 
         /* --- PRINT STYLES --- */
         @media print {
-            nav, footer, .btn-back, .download-section, .no-print {
-                display: none !important;
-            }
-            body { background: white !important; }
-            .container { margin: 0; width: 100%; max-width: 100%; }
-            .detail-card { box-shadow: none !important; border: 1px solid #eee; border-radius: 0; }
-            .total-price { color: #000 !important; }
-            @page { margin: 15mm; }
+            body { background: white; }
+            .no-print, nav, footer { display: none !important; }
+            .container { margin: 0; max-width: 100%; width: 100%; }
+            .invoice-card { box-shadow: none; border: 1px solid #eee; padding: 40px; border-radius: 0; }
+            .info-grid { background: #fff !important; border: 1px solid #eee; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="my_orders.php" class="btn-back no-print">← Back to My Orders</a>
+    <div class="no-print">
+        <a href="my_orders.php" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Back to My Orders</a>
+    </div>
 
-    <div class="detail-card" id="invoice">
-        <div class="status-header">
-            <div>
-                <h1 style="margin:0; color:var(--primary);">MELODY MASTERS</h1>
-                <p style="color:#888; margin:5px 0;">Official Purchase Invoice</p>
-                <h3 style="margin:10px 0 0;">Order #ORD-<?php echo $order['order_id']; ?></h3>
-                <p style="color:#666; font-size:0.9rem;">Date: <?php echo date('M d, Y', strtotime($order['order_date'])); ?></p>
+    <div class="invoice-card" id="printableInvoice">
+        <div class="invoice-header">
+            <div class="brand">
+                <h1>MELODY MASTERS</h1>
+                <p>Premium Instruments & Pro Audio</p>
+                <p style="font-size: 0.8rem;"><i class="fa-solid fa-location-dot"></i> Colombo, Sri Lanka</p>
             </div>
-            <div style="text-align: right;">
-                <span style="background:#e6f9ed; color:#2ecc71; padding:8px 15px; border-radius:20px; font-weight:600; font-size:0.8rem; text-transform:uppercase;">
-                    <?php echo $order['order_status']; ?>
-                </span>
+            <div class="order-meta">
+                <h2>INVOICE</h2>
+                <p>Order ID: #ORD-<?php echo $order['order_id']; ?></p>
+                <p>Date: <?php echo date('d M, Y', strtotime($order['order_date'])); ?></p>
+                <div class="status-badge"><?php echo $order['order_status']; ?></div>
             </div>
         </div>
 
-        <h3>Items Ordered</h3>
+        <div class="info-grid">
+            <div class="info-block">
+                <h4>Customer Details</h4>
+                <p><?php echo $_SESSION['user_name'] ?? 'Valued Customer'; ?></p>
+                <p style="color:#64748b; font-weight:400; font-size:0.85rem;"><?php echo $_SESSION['user_email'] ?? ''; ?></p>
+            </div>
+            <div class="info-block">
+                <h4>Shipping Address</h4>
+                <p><?php echo !empty($order['shipping_address']) ? $order['shipping_address'] : "Standard Delivery - Address on Record"; ?></p>
+            </div>
+        </div>
+
         <table class="items-table">
             <thead>
                 <tr>
-                    <th>Product Name</th>
-                    <th>Price</th>
-                    <th>Qty</th>
-                    <th style="text-align:right;">Subtotal</th>
+                    <th>Item Description</th>
+                    <th style="text-align: center;">Unit Price</th>
+                    <th style="text-align: center;">Qty</th>
+                    <th style="text-align: right;">Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -128,39 +235,49 @@ $items_result = $conn->query($items_query);
                     $subtotal += $line_total;
                 ?>
                 <tr>
-                    <td><strong><?php echo $item['product_name']; ?></strong></td>
-                    <td>Rs. <?php echo number_format($item['price'], 2); ?></td>
-                    <td><?php echo $item['quantity']; ?></td>
-                    <td style="text-align:right;">Rs. <?php echo number_format($line_total, 2); ?></td>
+                    <td><span class="product-name"><?php echo $item['product_name']; ?></span></td>
+                    <td style="text-align: center;">Rs. <?php echo number_format($item['price'], 2); ?></td>
+                    <td style="text-align: center;"><?php echo $item['quantity']; ?></td>
+                    <td style="text-align: right; font-weight:600;">Rs. <?php echo number_format($line_total, 2); ?></td>
                 </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
 
-        <div class="summary">
-            <p>Subtotal: <strong>Rs. <?php echo number_format($subtotal, 2); ?></strong></p>
-            <p>Shipping Fee: <strong><?php echo ($order['shipping_cost'] == 0) ? "Free" : "Rs. ".number_format($order['shipping_cost'], 2); ?></strong></p>
-            <p class="total-price">Total Amount: Rs. <?php echo number_format($order['total_amount'], 2); ?></p>
+        <div class="invoice-footer">
+            <div class="summary-box">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>Rs. <?php echo number_format($subtotal, 2); ?></span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span style="color:var(--success); font-weight:600;">
+                        <?php echo ($order['shipping_cost'] == 0) ? "FREE" : "Rs. ".number_format($order['shipping_cost'], 2); ?>
+                    </span>
+                </div>
+                <div class="summary-row total">
+                    <span>Grand Total</span>
+                    <span>Rs. <?php echo number_format($order['total_amount'], 2); ?></span>
+                </div>
+            </div>
         </div>
 
-        <hr style="border:1px solid #eee; margin:30px 0;">
-        
-        <h3>Shipping Information</h3>
-        <p style="color: #555; line-height: 1.6;">
-            <?php echo isset($order['shipping_address']) ? $order['shipping_address'] : "Standard Delivery to your registered address."; ?>
-        </p>
-
-        <p style="text-align: center; color: #888; font-size: 0.8rem; margin-top: 40px;" class="print-only">
-            Thank you for shopping with Melody Masters!<br>
-            This is a computer-generated invoice.
-        </p>
+        <div style="margin-top: 60px; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 30px;">
+            <p style="color:#94a3b8; font-size:0.85rem; margin:0;">
+                Thank you for choosing <strong>Melody Masters</strong>. We appreciate your business!<br>
+                This is a digital invoice. For support, contact us at support@melodymasters.lk
+            </p>
+        </div>
     </div>
 
-    <div class="download-section" style="text-align: center; margin-top: 30px;">
-        <button onclick="window.print()" style="background: #27ae60; color: white; padding: 15px 35px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); transition: 0.3s;">
-            <i class="fa-solid fa-file-arrow-down"></i> Download Invoice (PDF)
+    <div class="actions no-print">
+        <button onclick="window.print()" class="btn-print">
+            <i class="fa-solid fa-print" style="margin-right:8px;"></i> Print or Download PDF
         </button>
-        <p style="color: #888; font-size: 0.8rem; margin-top: 10px;">Click the button and select "Save as PDF" in the print window.</p>
+        <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 15px;">
+            <i class="fa-solid fa-circle-info"></i> To save as PDF, select "Save as PDF" in the Print Destination.
+        </p>
     </div>
 </div>
 

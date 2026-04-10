@@ -1,5 +1,5 @@
 <?php
-// දැනට විවෘතව ඇති පිටුවේ නම ලබා ගැනීම
+
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
@@ -51,7 +51,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         overflow-y: auto;
     }
 
-    /* Scrollbar සඟවා තැබීම */
+   
     .sidebar-menu::-webkit-scrollbar { width: 5px; }
     .sidebar-menu::-webkit-scrollbar-thumb { background: var(--sidebar-hover); }
 
@@ -107,9 +107,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
         background: rgba(255, 118, 117, 0.1);
     }
 
-    /* --- RESPONSIVE BREAKPOINTS --- */
-
-    /* ටැබ්ලට් සහ කුඩා ලැප්ටොප් සඳහා (Tablets) */
     @media (max-width: 992px) {
         :root { --sidebar-width: 80px; }
         .sidebar-header h2, .sidebar-menu span, .logout-btn span {
@@ -131,7 +128,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
         .sidebar-menu a:hover { padding-left: 0; background: var(--sidebar-hover); }
     }
 
-    /* ජංගම දුරකථන සඳහා (Mobile) - පහළ Navigation එකක් ලෙස හෝ කුඩාවට */
     @media (max-width: 576px) {
         .sidebar {
             width: 100%;
@@ -162,7 +158,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             background: transparent;
             color: var(--accent-blue);
         }
-        /* Dashboard එකේ main-content එකට margin-left: 0; දිය යුතු බව මතක තබා ගන්න */
+        
     }
 </style>
 

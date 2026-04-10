@@ -1,7 +1,6 @@
 <?php
 include 'db_connect.php';
 
-// දැනටමත් Session එකක් නැත්නම් පමණක් ආරම්භ කරන්න
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -10,7 +9,6 @@ if (isset($_GET['id']) && isset($_SESSION['user_id'])) {
     $product_id = mysqli_real_escape_string($conn, $_GET['id']);
     $user_id = $_SESSION['user_id'];
 
-    // දත්ත පරීක්ෂාව
     $sql = "SELECT dd.*, p.download_file 
             FROM digital_downloads dd
             JOIN products p ON dd.product_id = p.product_id
@@ -48,7 +46,7 @@ if (isset($_GET['id']) && isset($_SESSION['user_id'])) {
             die("Error: File not found in folder. Check: uploads/digital_files/" . $fileName);
         }
     } else {
-        // --- Debugging Information (ප්‍රශ්නය සෙවීමට පමණයි) ---
+        // --- Debugging Information  ---
         echo "<h3>Access Denied!</h3>";
         echo "Your User ID: " . $user_id . "<br>";
         echo "Product ID requested: " . $product_id . "<br>";

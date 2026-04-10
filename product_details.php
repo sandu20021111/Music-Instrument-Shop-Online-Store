@@ -2,11 +2,9 @@
 include 'db_connect.php';
 include 'navbar.php';
 
-// URL එකෙන් Product ID එක ලබා ගැනීම
 if (isset($_GET['id'])) {
     $product_id = mysqli_real_escape_string($conn, $_GET['id']);
     
-    // භාණ්ඩයේ විස්තර ලබා ගැනීම
     $sql = "SELECT p.*, c.category_name FROM products p 
             JOIN categories c ON p.category_id = c.category_id 
             WHERE p.product_id = '$product_id'";
@@ -24,14 +22,12 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-// පාරිභෝගිකයා මෙම භාණ්ඩය මිලදී ගෙන ඇත්දැයි පරීක්ෂා කිරීම
 $has_purchased = false;
 $download_info = null;
 
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
     
-    // 1. Review දැමීමට අවසර ඇත්දැයි බැලීම (Delivered status)
     $check_purchase = "SELECT * FROM orders o 
                        JOIN order_items oi ON o.order_id = oi.order_id 
                        WHERE o.user_id = '$user_id' 
@@ -43,7 +39,6 @@ if (isset($_SESSION['user_id'])) {
         $has_purchased = true;
     }
 
-    // 2. ඩිජිටල් භාණ්ඩයක් නම් Download විස්තර ලබා ගැනීම
     if ($product['product_type'] == 'Digital') {
         $dl_query = "SELECT * FROM digital_downloads 
                      WHERE user_id = '$user_id' AND product_id = '$product_id' LIMIT 1";
@@ -70,39 +65,82 @@ if (isset($_SESSION['user_id'])) {
             --success: #27ae60;
             --text-muted: #636e72;
             --bg-light: #f8f9fa;
-            --warning: #f39c12;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: white; margin: 0; color: var(--primary); line-height: 1.6; }
+        body { font-family: 'Inter', sans-serif; background-color: #fff; margin: 0; color: var(--primary); line-height: 1.6; }
+        
+        /* Layout */
         .product-page-container { max-width: 1200px; margin: 50px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
         .product-image-container { background: var(--bg-light); border-radius: 20px; padding: 30px; display: flex; align-items: center; justify-content: center; position: sticky; top: 100px; height: fit-content; }
         .image-wrapper img { max-width: 100%; height: auto; transition: 0.4s ease; border-radius: 10px; }
         .image-wrapper:hover img { transform: scale(1.05); }
+        
         .brand-label { text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--accent); font-size: 0.85rem; }
         h1 { font-size: 2.5rem; margin: 10px 0; font-weight: 700; }
-        .price-tag { font-size: 2rem; font-weight: 700; margin: 20px 0; }
+        .price-tag { font-size: 2rem; font-weight: 700; margin: 20px 0; color: var(--primary); }
+        
         .specs-container { background: var(--bg-light); padding: 25px; border-radius: 15px; margin-top: 30px; }
         .purchase-box { margin-top: 30px; padding: 25px; border: 2px solid #eee; border-radius: 15px; }
-        .btn-add-cart { background: var(--primary); color: white; padding: 15px 40px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; }
-        .btn-add-cart:hover { background: #1a252f; transform: translateY(-2px); }
+        
+        .btn-add-cart { background: var(--primary); color: white; padding: 15px 40px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; text-align: center; }
+        .btn-add-cart:hover { background: #1a252f; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
         /* Digital Download Box */
         .download-box { margin-top: 20px; padding: 20px; background: #eef9ff; border: 2px dashed var(--accent); border-radius: 15px; text-align: center; }
 
-        /* Modern Star Rating */
-        .stars-container { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
+        /* --- Updated Review Section --- */
+        .review-section { max-width: 1200px; margin: 80px auto; padding: 0 20px; border-top: 1px solid #eee; padding-top: 50px; }
+        .review-header { margin-bottom: 40px; text-align: center; }
+        .review-header h2 { font-size: 2rem; font-weight: 700; }
+
+        .review-form { background: var(--bg-light); padding: 30px; border-radius: 20px; margin-bottom: 50px; border: 1px solid #eee; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .review-form h3 { margin-top: 0; margin-bottom: 20px; }
+        .review-form textarea { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; margin: 15px 0; font-family: inherit; resize: vertical; box-sizing: border-box; }
+        
+        /* Stars Input */
+        .stars-container { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 8px; margin: 10px 0; }
         .stars-container input { display: none; }
-        .stars-container label { font-size: 2rem; color: #ddd; cursor: pointer; transition: 0.2s; }
-        .stars-container label:hover, .stars-container label:hover ~ label, .stars-container input:checked ~ label { color: #f1c40f; }
+        .stars-container label { font-size: 1.8rem; color: #ddd; cursor: pointer; transition: 0.2s; }
+        .stars-container label:hover, .stars-container label:hover ~ label, .stars-container input:checked ~ label { color: var(--warning); }
 
-        /* Review Section */
-        .review-section { max-width: 1200px; margin: 50px auto; padding: 40px 20px; border-top: 1px solid #eee; }
-        .review-form { background: var(--bg-light); padding: 30px; border-radius: 15px; margin-bottom: 40px; }
-        .review-form textarea { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin: 10px 0; font-family: inherit; resize: vertical; }
-        .review-card { border-bottom: 1px solid #eee; padding: 20px 0; }
-        .stars { color: #f1c40f; margin-bottom: 5px; }
+        /* --- Review Grid (Card display) --- */
+        .reviews-list { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); 
+            gap: 25px; 
+        }
+        
+        .review-card { 
+            background: var(--white); 
+            padding: 25px; 
+            border-radius: 20px; 
+            border: 1px solid #f0f0f0; 
+            transition: 0.3s ease; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+        }
+        .review-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+        
+        .review-meta { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .user-avatar { width: 45px; height: 45px; background: #e0e7ff; color: #4338ca; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .user-info h4 { margin: 0; font-size: 1rem; }
+        .user-info span { font-size: 0.8rem; color: var(--text-muted); }
+        
+        .stars-display { color: var(--warning); font-size: 0.85rem; margin-bottom: 10px; }
+        .review-text { color: #4a5568; line-height: 1.6; margin: 0; font-size: 0.95rem; }
 
-        @media (max-width: 850px) { .product-page-container { grid-template-columns: 1fr; } .product-image-container { position: static; } }
+        .notice-box { background: #fffbeb; border-left: 4px solid var(--warning); padding: 15px 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; }
+
+        @media (max-width: 850px) { 
+            .product-page-container { grid-template-columns: 1fr; } 
+            .product-image-container { position: static; }
+            .reviews-list { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -135,49 +173,44 @@ if (isset($_SESSION['user_id'])) {
                     $no_limit = ($download_info['download_count'] >= $download_info['max_limit']);
 
                     if ($is_expired): ?>
-                        <p style="color: #e74c3c;">This download link has expired (<?php echo date('M d, Y', strtotime($download_info['expiry_date'])); ?>).</p>
+                        <p style="color: var(--danger);">Link expired.</p>
                     <?php elseif ($no_limit): ?>
-                        <p style="color: #e74c3c;">Download limit reached (<?php echo $download_info['max_limit']; ?>/<?php echo $download_info['max_limit']; ?>).</p>
+                        <p style="color: var(--danger);">Download limit reached.</p>
                     <?php else: ?>
                         <p>Remaining: <?php echo ($download_info['max_limit'] - $download_info['download_count']); ?> downloads</p>
-                        <a href="download.php?id=<?php echo $product['product_id']; ?>" class="btn-add-cart" style="background: var(--success);">
-                            Download Now
-                        </a>
-                        <p style="font-size: 0.8rem; margin-top:10px; color: var(--text-muted);">Expires: <?php echo date('M d, Y', strtotime($download_info['expiry_date'])); ?></p>
+                        <a href="download.php?id=<?php echo $product['product_id']; ?>" class="btn-add-cart" style="background: var(--success); width: 100%; box-sizing: border-box;">Download Now</a>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
 
             <div class="purchase-box">
                 <?php if ($product['stock_quantity'] > 0 || $product['product_type'] == 'Digital'): ?>
-                    <div style="color: var(--success); font-weight: 600; margin-bottom: 15px;">
-                        <i class="fa-solid fa-circle-check"></i> <?php echo ($product['product_type'] == 'Digital') ? 'Instant Digital Delivery' : $product['stock_quantity'] . ' in stock'; ?>
-                    </div>
-                    <form action="cart.php" method="POST" style="display: flex; gap: 10px;">
+                    <form action="cart.php" method="POST" style="display: flex; gap: 15px;">
                         <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
                         <?php if($product['product_type'] !== 'Digital'): ?>
-                            <input type="number" name="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" style="width: 70px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                            <input type="number" name="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" style="width: 80px; padding: 12px; border-radius: 10px; border: 1px solid #ddd;">
                         <?php else: ?>
                             <input type="hidden" name="quantity" value="1">
                         <?php endif; ?>
-                        <button type="submit" name="add_to_cart" class="btn-add-cart">Add to Cart</button>
+                        <button type="submit" name="add_to_cart" class="btn-add-cart" style="flex: 1;">Add to Cart</button>
                     </form>
                 <?php else: ?>
-                    <p style="color: #e74c3c; font-weight: 700;">Out of Stock</p>
+                    <p style="color: var(--danger); font-weight: 700;">Out of Stock</p>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 
     <div class="review-section">
-        <h2>Customer Reviews</h2>
+        <div class="review-header">
+            <h2>Customer Feedback</h2>
+        </div>
 
         <?php if ($has_purchased): ?>
             <div class="review-form">
-                <h3>Write a Review</h3>
+                <h3>Rate this product</h3>
                 <form action="submit_review.php" method="POST">
                     <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
-                    <label style="font-weight:600;">Your Rating:</label>
                     <div class="stars-container">
                         <input type="radio" id="star5" name="rating" value="5" required /><label for="star5"><i class="fa-solid fa-star"></i></label>
                         <input type="radio" id="star4" name="rating" value="4" /><label for="star4"><i class="fa-solid fa-star"></i></label>
@@ -185,16 +218,14 @@ if (isset($_SESSION['user_id'])) {
                         <input type="radio" id="star2" name="rating" value="2" /><label for="star2"><i class="fa-solid fa-star"></i></label>
                         <input type="radio" id="star1" name="rating" value="1" /><label for="star1"><i class="fa-solid fa-star"></i></label>
                     </div>
-                    <textarea name="comment" rows="4" placeholder="How was your experience with this product?" required></textarea>
-                    <button type="submit" name="submit_review" class="btn-add-cart">Submit Review</button>
+                    <textarea name="comment" rows="3" placeholder="How was the product? Share your thoughts..." required></textarea>
+                    <button type="submit" name="submit_review" class="btn-add-cart">Post My Review</button>
                 </form>
             </div>
         <?php elseif(isset($_SESSION['user_id'])): ?>
-            <div style="background: #fff4e5; padding: 15px; border-radius: 10px; margin-bottom: 30px; border-left: 5px solid var(--warning);">
-                <p style="margin: 0; color: #663c00;"><i class="fa-solid fa-info-circle"></i> Once your order status is marked as 'Delivered', you can leave a review here.</p>
+            <div class="notice-box">
+                <p><i class="fa-solid fa-info-circle"></i> Reviews are only available for verified purchasers after delivery.</p>
             </div>
-        <?php else: ?>
-            <p><a href="login.php" style="color: var(--accent); font-weight:600;">Login</a> to write a review.</p>
         <?php endif; ?>
 
         <div class="reviews-list">
@@ -205,20 +236,29 @@ if (isset($_SESSION['user_id'])) {
             $reviews = $conn->query($review_sql);
 
             if ($reviews->num_rows > 0):
-                while($row = $reviews->fetch_assoc()): ?>
+                while($row = $reviews->fetch_assoc()): 
+                    $initial = strtoupper(substr($row['full_name'], 0, 1));
+            ?>
                     <div class="review-card">
-                        <div class="stars">
+                        <div class="review-meta">
+                            <div class="user-avatar"><?php echo $initial; ?></div>
+                            <div class="user-info">
+                                <h4><?php echo htmlspecialchars($row['full_name']); ?></h4>
+                                <span><?php echo date('M d, Y', strtotime($row['created_at'])); ?></span>
+                            </div>
+                        </div>
+                        <div class="stars-display">
                             <?php for($i=1; $i<=5; $i++) {
                                 echo ($i <= $row['rating']) ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
                             } ?>
                         </div>
-                        <strong style="display: block; margin-bottom: 5px;"><?php echo htmlspecialchars($row['full_name']); ?></strong>
-                        <p style="margin: 5px 0;"><?php echo nl2br(htmlspecialchars($row['comment'])); ?></p>
-                        <small style="color: var(--text-muted);"><?php echo date('M d, Y', strtotime($row['created_at'])); ?></small>
+                        <p class="review-text"><?php echo nl2br(htmlspecialchars($row['comment'])); ?></p>
                     </div>
                 <?php endwhile;
             else: ?>
-                <p>No reviews yet. Be the first to share your experience!</p>
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                    <p style="color: var(--text-muted);">No reviews yet. Be the first to rate!</p>
+                </div>
             <?php endif; ?>
         </div>
     </div>

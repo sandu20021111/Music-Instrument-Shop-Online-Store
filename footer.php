@@ -124,7 +124,7 @@
         <div class="footer-section">
             <h3>Help & Support</h3>
             <ul class="footer-links">
-                <li><a href="my_orders.php">Track Order</a></li>
+                <li><a href="#">Track Order</a></li>
                 <li><a href="#">Terms & Conditions</a></li>
                 <li><a href="#">Privacy Policy</a></li>
                 <li><a href="#">Return Policy</a></li>
@@ -133,13 +133,13 @@
 
         <div class="footer-section">
             <h3>Contact Us</h3>
-            <p>📍 No 123, Music Road, Colombo</p>
-            <p>📞 +94 112 345 678</p>
-            <p>📧 info@melodymasters.com</p>
+            <p> No 123, Music Road, Colombo</p>
+            <p> +94 112 345 678</p>
+            <p> info@melodymasters.com</p>
         </div>
     </div>
 
     <div class="footer-bottom">
-        <p>&copy; <?php echo date("Y"); ?> Melody Masters. All Rights Reserved. Designed with ❤️</p>
+        <p>&copy; <?php echo date("Y"); ?> Melody Masters. All Rights Reserved. Designed with </p>
     </div>
 </footer>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 22, 2026 at 04:42 PM
+-- Generation Time: Feb 28, 2026 at 03:56 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -42,8 +42,7 @@ INSERT INTO `categories` (`category_id`, `category_name`, `parent_id`) VALUES
 (2, 'Pianos', NULL),
 (3, 'Drums', NULL),
 (4, 'Violins', NULL),
-(5, 'Accessories', NULL),
-(7, 'ppppp', NULL);
+(5, 'Accessories', NULL);
 
 -- --------------------------------------------------------
 
@@ -91,7 +90,8 @@ INSERT INTO `digital_downloads` (`download_id`, `order_id`, `product_id`, `user_
 (2, 18, 7, 12, 0, 5, '2026-01-29 16:26:10'),
 (3, 19, 7, 12, 0, 5, '2026-01-29 16:26:14'),
 (4, 20, 8, 12, 0, 5, '2026-01-29 16:31:49'),
-(5, 21, 9, 12, 1, 5, '2026-01-29 16:40:11');
+(5, 21, 9, 12, 1, 5, '2026-01-29 16:40:11'),
+(6, 23, 21, 18, 1, 5, '2026-03-07 15:52:26');
 
 -- --------------------------------------------------------
 
@@ -135,7 +135,9 @@ INSERT INTO `orders` (`order_id`, `user_id`, `order_date`, `total_amount`, `ship
 (18, 12, '2026-01-22 15:18:48', 1000.00, 500.00, 'Delivered', 'colombo', 'Cash on Delivery'),
 (19, 12, '2026-01-22 15:26:00', 1000.00, 500.00, 'Delivered', 'colombo', 'Cash on Delivery'),
 (20, 12, '2026-01-22 15:31:17', 1500.00, 500.00, 'Delivered', 'matara', 'Cash on Delivery'),
-(21, 12, '2026-01-22 15:39:32', 8500.00, 500.00, 'Delivered', 'malabe', 'Cash on Delivery');
+(21, 12, '2026-01-22 15:39:32', 8500.00, 500.00, 'Shipped', 'malabe', 'Cash on Delivery'),
+(22, 18, '2026-02-27 17:09:34', 500000.00, 0.00, 'Delivered', 'no 473/4, malabe', 'Credit/Debit Card'),
+(23, 18, '2026-02-28 14:51:26', 11000.00, 500.00, 'Delivered', '74/0, waliwita road, malabe', 'Credit/Debit Card');
 
 -- --------------------------------------------------------
 
@@ -171,7 +173,9 @@ INSERT INTO `order_items` (`order_item_id`, `order_id`, `product_id`, `product_n
 (12, 18, 7, 'eg', 500.00, 1),
 (13, 19, 7, 'eg', 500.00, 1),
 (14, 20, 8, 'bfbdbkgjvrtogjvro njn,ie', 1000.00, 1),
-(15, 21, 9, 'sddfwsdfb fvsdf', 8000.00, 1);
+(15, 21, 9, 'sddfwsdfb fvsdf', 8000.00, 1),
+(16, 22, 10, 'Stratocaster Player Series', 250000.00, 2),
+(17, 23, 21, 'Drum Backing Tracks Pack (MP3)', 3500.00, 3);
 
 -- --------------------------------------------------------
 
@@ -197,13 +201,18 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`product_id`, `category_id`, `product_name`, `brand`, `price`, `stock_quantity`, `product_image`, `download_file`, `specifications`, `product_type`) VALUES
-(2, 1, 'Guitar', 'sarbase', 5000.00, 9, '1768667295_g.jpg', NULL, NULL, 'Physical'),
-(3, 3, 'bbb', 'dfgg', 50000.00, 20, '1769016179_drum1.jpg', NULL, NULL, 'Physical'),
-(4, 4, 'rdt yug', 'fbt7ni', 7500.00, 10, '1769017359_s.jpg', NULL, NULL, 'Physical'),
-(5, 3, 'scsdvd erger', 't e', 7500.00, 7, '1769083589_about.jpg', NULL, 'xx', 'Physical'),
-(7, 3, 'eg', 'ege', 500.00, 33, '1769090764_sheets.jpg', NULL, 'fvdfvdfd ', 'Digital'),
-(8, 1, 'bfbdbkgjvrtogjvro njn,ie', 'ncu4rvm34vjuj', 1000.00, 9, '1769095839_Assignment.pdf', NULL, 'nec3mr,xq3o.ueh jcrk.xp03or.,hg35 j', 'Digital'),
-(9, 2, 'sddfwsdfb fvsdf', 'vsdvdvs ', 8000.00, 24, '1769096339_accessories.jpg', '1769096339_file_Assignment.pdf', 'fbrmfw,ocw nwrmic,.weo jwurwjp9oei[q', 'Digital');
+(10, 1, 'Stratocaster Player Series', 'Fender', 255000.00, 5, '1772212082_g.jpg', '', 'Electric guitar, Alder body, Maple neck, 3× Single-coil pickups, 22 frets', 'Physical'),
+(11, 3, 'Pearl Export 5-Piece Drum Set', 'Pearl', 185000.00, 10, '1772288896_EXX725SPC778_hqw_3993x2958.webp', '', '5-piece drum kit\r\n22\" Bass Drum\r\nMaple shell construction\r\nIncludes hardware pack\r\nColor: Jet Black', 'Physical'),
+(12, 3, 'Yamaha Stage Custom Birch Drum Kit', 'Yamaha ', 240000.00, 3, '1772288989_yamaha-stage-custom-birch-5-piece-shell-kit-deep-blue-sunburst-sbx0f56dbs-new-drum-kit-yamaha-894620.webp', '', '100% Birch Shell\r\n20\" Bass Drum\r\nAdvanced lightweight hardware\r\nStudio & Live performance ready', 'Physical'),
+(13, 1, 'Yamaha F280 Acoustic Guitar', 'Yamaha ', 45000.00, 10, '1772289078_VCW6810.jpg', '', 'Spruce Top\r\nRosewood Fingerboard\r\nFull-size Dreadnought\r\nPerfect for beginners', 'Physical'),
+(14, 2, 'Yamaha P-45 Digital Piano', 'Yamaha ', 210000.00, 6, '1772289156_yamaha-p45-piano.jpg', '', '88 Weighted Keys\r\nGraded Hammer Standard\r\n10 Voices\r\nUSB to Host\r\nIncludes Sustain Pedal', 'Physical'),
+(15, 2, 'Casio CT-X700 Portable Keyboard', 'Casio ', 78000.00, 8, '1772289256_casio_ctx_700_value_bundle_kit_1389987.jpg', '', '61 Keys\r\n600 Tones\r\n195 Rhythms\r\nBuilt-in Speakers\r\nLightweight Design', 'Physical'),
+(16, 4, 'Stentor Student II Violin 4/4', 'Stentor', 38000.00, 7, '1772289307_Stentor-Student-II-Violin_21c59c76-e9d7-4d53-97e6-eac40e31379a_1024x1024.webp', '', 'Solid Spruce Top\r\nEbony Fingerboard\r\nIncludes Bow & Case\r\nIdeal for students', 'Physical'),
+(17, 4, 'Yamaha V3SKA Violin', 'Yamaha ', 95000.00, 4, '1772289402_violino-v3ska.jpg', '', 'Hand-carved Spruce\r\nPremium Strings\r\nRich Tone Quality\r\nFull Set with Case', 'Physical'),
+(18, 5, 'Guitar Capo (Metal Alloy)', 'Generic', 2500.00, 25, '1772289492_s-l1200.jpg', '', 'Lightweight\r\nFits Acoustic & Electric\r\nQuick Release Mechanism', 'Physical'),
+(19, 5, 'Drum Sticks (5A Hickory)', 'Vic Firth', 4500.00, 30, '1772289564_RAWHickoryClassic5BWoodTipDrumsticks1_e468bb4d-52f7-473d-a28a-77c4e82cb2a4-Photoroom_1.webp', '', 'Hickory Wood\r\n5A Standard Size\r\nBalanced & Durable', 'Physical'),
+(20, 1, 'Beginner Guitar Lessons PDF', 'Melody Masters', 2500.00, 999, '1772289838_il_fullxfull.5977207237_oxvv.webp', '1772289838_file_manual_beginner_guitar.pdf', 'Step-by-step beginner guide\r\nChord charts included\r\nPractice exercises\r\nInstant PDF download', 'Digital'),
+(21, 3, 'Drum Backing Tracks Pack (MP3)', 'Melody Masters', 3500.00, 997, '1772290087_a4206693962_16.jpg', '1772290087_file_Lamb_of_God_-_Laid_to_Rest_(mp3.pm).mp3', '20 Professional Backing Tracks\r\nMP3 Format\r\nStudio Quality\r\nInstant Download', 'Digital');
 
 -- --------------------------------------------------------
 
@@ -219,14 +228,6 @@ CREATE TABLE `reviews` (
   `comment` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `reviews`
---
-
-INSERT INTO `reviews` (`review_id`, `product_id`, `user_id`, `rating`, `comment`, `created_at`) VALUES
-(1, 2, 12, 4, 'dfbfgnfg  vfngn', '2026-01-22 14:47:35'),
-(2, 2, 12, 4, 'dszbdgfhm', '2026-01-22 14:50:59');
 
 -- --------------------------------------------------------
 
@@ -251,13 +252,16 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `full_name`, `email`, `password`, `role`, `address`, `contact_number`, `reset_token_hash`, `reset_token_expires_at`) VALUES
-(1, 'anuththara', 'anu@gmail.com', '$2y$10$ApoFkOgZSoSgutkpCg2Hc.AcK83BVjL527/jLtXJyB.BUDckYWqnG', 'Customer', NULL, '0768483156', NULL, NULL),
-(2, 'padmika', 'padmi@gmail.com', '$2y$10$fJTsBM9JO.tznoc3Nm6oAeV7aGwMknZ80flvwRxUQXS/nQvMqyVPO', 'Admin', NULL, '0761817518', NULL, NULL),
-(11, 'Vihara', 'vihara@gmail.com', '$2y$10$DR13LeP2tvUZXluLQVL4tuMLfylxYggxr.mbFGf5L9nnA01CkPZMu', 'Admin', NULL, '0712436759', NULL, NULL),
-(12, 'sanduni', 'sandu@gmail.com', '$2y$10$kxBvc5ipIWLP0lCf2EAWPuYqwTLWPrLTcAGfZ6x89EI8TduoizKk6', 'Customer', NULL, '0773512698', NULL, NULL),
+(1, 'Chathu', 'chatu@gmail.com', '$2y$10$ApoFkOgZSoSgutkpCg2Hc.AcK83BVjL527/jLtXJyB.BUDckYWqnG', 'Customer', NULL, '0768483156', NULL, NULL),
+(2, 'Chamo', 'chamo@gmail.com', '$2y$10$fJTsBM9JO.tznoc3Nm6oAeV7aGwMknZ80flvwRxUQXS/nQvMqyVPO', 'Customer', NULL, '0761817518', NULL, NULL),
+(11, 'Vihara', 'sandunivihara717@gmail.com', '$2y$10$lj5/HcraEE8HJslDgdLE5OXl4fRNlZdH9DxNcaLO30ItBZ/RJadwq', 'Admin', NULL, '0712436759', NULL, NULL),
+(12, 'sanduni', 'sandu@gmail.com', '$2y$10$DVH2QZecEQXW5LjqhlrVLeEEuOqOPwEcAv7P7ZVxcyGk5HGaoJsAC', 'Customer', NULL, '0773512698', NULL, NULL),
 (13, 'Sanduni Vihara', 'sandunivihara228@gmail.com', '$2y$10$CCbH3lU/rteWbiP9hvDKWu1HqNWZR5XzVSDJbZ8UJb7/C0ZDjS6jy', 'Customer', NULL, '0714790107', NULL, NULL),
 (14, 'Madu', 'madu@gmail.com', '$2y$10$BNalU.k52y0oiX5/48Z/ne.CKXrzOYWiHCbEtrDtHa0d8sP3YhJsu', 'Staff', NULL, NULL, NULL, NULL),
-(15, 'Ajith', 'ajith@gmail.com', '$2y$10$t2KtrqLqZNPoZJTm.kZkmub0cz016taTnDtOmyvVMFiLlhhcNsgAC', 'Staff', NULL, NULL, NULL, NULL);
+(16, 'Tharu', 'tharu@gmail.com', '$2y$10$0SXEdRQa6j82GpQv1V60ROY7RnioK96axVtrcS8z1bqudDdwgK.Ky', 'Admin', NULL, '0773512698', NULL, NULL),
+(17, 'Menu', 'menu@gmail.com', '$2y$10$C5R5FYPKmJ3BATKH4NGRAOKNMB0.x2LRT1YLG.pe4MQv0S./8R8Gq', 'Customer', NULL, '0712436759', NULL, NULL),
+(18, 'Shan', 'shan@gmail.com', '$2y$10$0oYzP9DSz14scBL6h6GtCuIAYqOdKyHdb6UsfYquhcM5zYYUQLOG6', 'Staff', NULL, NULL, NULL, NULL),
+(19, 'sayuri', 'sayu@gmail.com', '$2y$10$rwC6rL.BL0MEDTC3ptWkv.M2HfUR7gLhhLe8m/YJAh5gFMUcBmBIy', 'Customer', NULL, '0714578963', NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -327,7 +331,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `contacts`
@@ -339,25 +343,25 @@ ALTER TABLE `contacts`
 -- AUTO_INCREMENT for table `digital_downloads`
 --
 ALTER TABLE `digital_downloads`
-  MODIFY `download_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `download_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `reviews`
@@ -369,7 +373,7 @@ ALTER TABLE `reviews`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Constraints for dumped tables

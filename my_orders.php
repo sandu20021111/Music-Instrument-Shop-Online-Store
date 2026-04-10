@@ -2,7 +2,6 @@
 include 'db_connect.php';
 include 'navbar.php';
 
-// පාරිභෝගිකයා ලොග් වී නැතිනම් පලවා හැරීම
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Customer') {
     header("Location: login.php");
     exit();
@@ -10,9 +9,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Customer') {
 
 $user_id = $_SESSION['user_id'];
 
-// ඇණවුම් ලබා ගැනීම
+// Orders ලබා ගැනීම
 $sql = "SELECT * FROM orders WHERE user_id = '$user_id' ORDER BY order_date DESC";
 $result = $conn->query($sql);
+
+// Digital Products ලබා ගැනීම
+$digital_sql = "SELECT oi.*, o.order_status, o.order_date, p.product_type, p.download_file 
+                FROM order_items oi
+                JOIN orders o ON oi.order_id = o.order_id
+                JOIN products p ON oi.product_id = p.product_id
+                WHERE o.user_id = '$user_id' AND p.product_type = 'Digital'
+                ORDER BY o.order_date DESC";
+$digital_result = $conn->query($digital_sql);
 ?>
 
 <!DOCTYPE html>
@@ -20,186 +28,126 @@ $result = $conn->query($sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders - Melody Masters</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>My Library - Melody Masters</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
             --primary: #2c3e50;
             --accent: #3498db;
             --bg-light: #f8f9fa;
             --white: #ffffff;
+            --text: #333;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-light); 
+            color: var(--text);
             margin: 0;
-            color: var(--primary);
+            line-height: 1.6;
         }
 
-        .orders-container {
-            max-width: 1000px;
-            margin: 50px auto;
-            padding: 0 20px;
-        }
+        .container { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
 
-        .header-section {
+        /* --- Section Titles --- */
+        .section-header {
+            border-left: 5px solid var(--accent);
+            padding-left: 15px;
             margin-bottom: 30px;
         }
 
-        .header-section h2 {
-            font-size: 1.8rem;
+        .section-header h2 { 
+            color: var(--primary); 
+            margin: 0; 
+            font-size: 1.8rem; 
             font-weight: 700;
-            margin: 0;
         }
 
-        /* --- Table Styling --- */
-        .table-card {
+        
+        /* --- Order History Table --- */
+        .table-container {
             background: var(--white);
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--primary); color: white; padding: 18px; text-align: left; font-size: 0.9rem; }
+        td { padding: 18px; border-bottom: 1px solid #f2f2f2; font-size: 0.95rem; }
 
-        th {
-            background: #fdfdfd;
-            padding: 18px 20px;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            border-bottom: 1px solid #eee;
-        }
-
-        td {
-            padding: 18px 20px;
-            border-bottom: 1px solid #f9f9f9;
-            font-size: 0.95rem;
-        }
-
-        tr:last-child td { border-bottom: none; }
-
-        .order-id {
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        /* --- Status Badges --- */
         .status-badge {
-            padding: 6px 12px;
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            display: inline-block;
+            text-transform: capitalize;
         }
 
-        .status-pending { background: #fff9e6; color: #f1c40f; }
-        .status-shipped { background: #e1f0fa; color: #3498db; }
-        .status-delivered { background: #e6f9ed; color: #2ecc71; }
-        .status-default { background: #f4f4f4; color: #888; }
+        .delivered { background: #d4edda; color: #155724; }
+        .pending { background: #fff3cd; color: #856404; }
 
-        .btn-view {
-            text-decoration: none;
+        .btn-details {
             color: var(--accent);
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: 0.3s;
-        }
-
-        .btn-view:hover {
-            color: var(--primary);
-            text-decoration: underline;
-        }
-
-        /* --- Empty State --- */
-        .empty-orders {
-            text-align: center;
-            padding: 80px 20px;
-            background: var(--white);
-            border-radius: 15px;
-        }
-
-        .empty-orders p { color: #888; margin-bottom: 20px; }
-
-        .btn-shop {
-            background: var(--accent);
-            color: white;
-            padding: 12px 30px;
             text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: 0.3s;
+            font-weight: 700;
         }
 
-        @media (max-width: 768px) {
-            table { display: block; overflow-x: auto; }
-        }
+        
+
     </style>
 </head>
 <body>
 
-<div class="orders-container">
-    <div class="header-section">
+<div class="container">
+    
+    
+
+    <div class="section-header">
         <h2>My Order History</h2>
-        <p style="color: #888;">Track and manage your musical instrument purchases.</p>
     </div>
 
-    <?php if ($result->num_rows > 0): ?>
-        <div class="table-card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Date</th>
-                        <th>Amount</th>
-                        <th>Shipping</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td class="order-id">#ORD-<?php echo $row['order_id']; ?></td>
-                        <td style="color: #666;"><?php echo date('M d, Y', strtotime($row['order_date'])); ?></td>
-                        <td style="font-weight: 600;">Rs. <?php echo number_format($row['total_amount'], 2); ?></td>
-                        <td>
-                            <?php echo ($row['shipping_cost'] == 0) ? "<span style='color:#2ecc71; font-weight:600;'>Free</span>" : "Rs. ".number_format($row['shipping_cost'], 2); ?>
-                        </td>
-                        <td>
-                            <?php 
-                                $statusClass = 'status-default';
-                                if($row['order_status'] == 'Pending') $statusClass = 'status-pending';
-                                elseif($row['order_status'] == 'Shipped') $statusClass = 'status-shipped';
-                                elseif($row['order_status'] == 'Delivered') $statusClass = 'status-delivered';
-                            ?>
-                            <span class="status-badge <?php echo $statusClass; ?>">
-                                <?php echo $row['order_status']; ?>
-                            </span>
-                        </td>
-                        <td>
-                            <a href="order_details.php?id=<?php echo $row['order_id']; ?>" class="btn-view">Details →</a>
-                        </td>
-                    </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        </div>
-    <?php else: ?>
-        <div class="empty-orders">
-            <img src="https://cdn-icons-png.flaticon.com/512/3500/3500833.png" width="80" style="opacity: 0.2; margin-bottom: 20px;">
-            <h3>No orders found</h3>
-            <p>You haven't placed any orders with Melody Masters yet.</p>
-            <br>
-            <a href="shop.php" class="btn-shop">Start Shopping</a>
-        </div>
-    <?php endif; ?>
+    <div class="table-container">
+        <?php if ($result && $result->num_rows > 0): ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td style="font-weight: 600;">#ORD-<?php echo $row['order_id']; ?></td>
+                    <td><?php echo date('M d, Y', strtotime($row['order_date'])); ?></td>
+                    <td>Rs. <?php echo number_format($row['total_amount'], 2); ?></td>
+                    <td>
+                        <?php 
+                            $st = strtolower($row['order_status']);
+                            echo "<span class='status-badge $st'>{$row['order_status']}</span>";
+                        ?>
+                    </td>
+                    <td>
+                        <a href="order_details.php?id=<?php echo $row['order_id']; ?>" class="btn-details">
+                            View Details
+                        </a>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <?php else: ?>
+            <div style="padding: 40px; text-align: center;">
+                <p>You haven't placed any orders yet.</p>
+                <a href="shop.php" style="color: var(--accent); font-weight: 700;">Start Shopping</a>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php include 'footer.php'; ?>

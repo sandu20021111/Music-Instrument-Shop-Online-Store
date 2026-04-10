@@ -2,12 +2,10 @@
 session_start();
 include 'db_connect.php';
 
-// ආරක්ෂාව: Admin හෝ Staff පමණයි
 if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'Admin' && $_SESSION['role'] !== 'Staff')) {
     header("Location: login.php"); exit();
 }
 
-// සියලුම භාණ්ඩ ලබා ගැනීම
 $sql = "SELECT p.*, c.category_name FROM products p 
         JOIN categories c ON p.category_id = c.category_id 
         ORDER BY c.category_name ASC";
